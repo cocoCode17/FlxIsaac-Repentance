@@ -116,10 +116,12 @@ class Player extends FlxTypedSpriteGroup<RepentanceSprite> {
 
         if (FlxG.keys.pressed.A){
             body.flipX = true;
+            
             body.velocity.x = -player_stats.speed;
         }
         if (FlxG.keys.pressed.D){
             body.flipX = false;
+            
             body.velocity.x = player_stats.speed;
         }
         if (FlxG.keys.pressed.W){
@@ -176,23 +178,50 @@ class Player extends FlxTypedSpriteGroup<RepentanceSprite> {
         }
 
         if (body.velocity.x != 0){
-            body.animation.play("walk_side");
-            if (body.flipX){
-                if (!head?.animation?.curAnim?.name.startsWith("head_tear"))
-                head.animation.play("head_left");
+            if (shooting){
+                if (currentShootDirection == "left" && body.velocity.x > 0){
+                    body.flipX = true;
+                    body.animation.play("walk_side", false, true);    
+                }else if (currentShootDirection == "right" && body.velocity.x < 0){
+                    body.animation.play("walk_side", false, true);    
+                }else{
+                    body.animation.play("walk_side");    
+                }
             }else{
-                if (!head?.animation?.curAnim?.name.startsWith("head_tear"))
-                head.animation.play("head_right");
+                body.animation.play("walk_side");
+            }
+            if (body.flipX){
+                if (shooting){
+                    if (!head?.animation?.curAnim?.name.startsWith("head_tear") && currentShootDirection == "left")
+                    head.animation.play("head_left");
+                }else{
+                    head.animation.play("head_left");
+                } 
+            }else{
+                if (shooting){
+                    if (!head?.animation?.curAnim?.name.startsWith("head_tear") && currentShootDirection == "right")
+                        head.animation.play("head_right");
+                }else{
+                        head.animation.play("head_right");
+                }
             }
         }else if (body.velocity.y != 0){
             if (body.velocity.y < 0){
                 body.animation.play("walk_up");
-                if (!head?.animation?.curAnim?.name.startsWith("head_tear"))
-                head.animation.play("head_up");
+                if (shooting){
+                    if (!head?.animation?.curAnim?.name.startsWith("head_tear") && currentShootDirection == "up")
+                    head.animation.play("head_up");
+                }else{
+                    head.animation.play("head_up");
+                }
             }else{
                 body.animation.play("walk_down");
-                if (!head?.animation?.curAnim?.name.startsWith("head_tear"))
-                head.animation.play("head_down");
+                if (shooting){
+                    if (!head?.animation?.curAnim?.name.startsWith("head_tear") && currentShootDirection == "down")
+                    head.animation.play("head_down");
+                }else{
+                    head.animation.play("head_down");
+                }
             }
         }else{
             if (toIdleAnim == "up"){
@@ -207,5 +236,9 @@ class Player extends FlxTypedSpriteGroup<RepentanceSprite> {
 
         if (player_stats.habilityOnUpdate != null)
             player_stats.habilityOnUpdate(elapsed);
+    }
+
+    public function getPlayer() {
+        return this;
     }
 }
