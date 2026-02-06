@@ -1,5 +1,7 @@
 package;
 
+import openfl.Assets;
+
 /**
  * Helper class to access asset paths in a type-safe manner.
  * 
@@ -32,4 +34,73 @@ package;
  * @see [Flixel 5.0.0 Migration guide - AssetPaths has less caveats](https://github.com/HaxeFlixel/flixel/wiki/Flixel-5.0.0-Migration-guide#assetpaths-has-less-caveats-2575)
 **/
 @:build(flixel.system.FlxAssets.buildFileReferences("assets", true))
-class AssetPaths {}
+class AssetPaths {
+    public static function img(path:String, ?ext:ImageExtType=PNG, ?lib:String="") {
+        var route = "assets/"+(lib!="" ? lib+"/" : lib)+"images/"+path+"."+ext;
+        trace(route);
+        if (!Assets.exists(route)) trace("NO IMAGE FOUNDED, full route: "+route);
+        return route;
+    }
+
+    public static function font(path:String, ?ext:FontExtType=TTF, ?lib:String="") {
+        var route = "assets/"+(lib!="" ? lib+"/" : lib)+"fonts/"+path+"."+ext;
+        trace(route);
+        if (!Assets.exists(route)) trace("NO FONT FOUNDED, full route: "+route);
+        return route;
+    }
+
+    public static function json(path:String, ?lib:String="", ?customRoute:String=null) {
+        var route = "assets/"+(lib!="" ? lib+"/" : lib)+"data/"+path+".json";
+        if (customRoute != null)route = customRoute+'${path}.json';
+        trace(route);
+        if (!Assets.exists(route)) trace("NO JSON DATA FOUNDED, full route: "+route);
+        return route;
+    }
+
+    public static function song(path:String, ?ext:SoundExtType=OGG, ?lib:String="") {
+        var route = "assets/"+(lib!="" ? lib+"/" : lib)+"music/"+path+"."+ext;
+        trace(route);
+        if (!Assets.exists(route)) trace("NO SOUND FOUNDED, full route: "+route);
+        return route;
+    }
+
+    /**
+        this, just gets the default's route, no extra libs.
+        you can set your own route with custom type
+    **/
+    public function getRoute(TYPE:RouteType, ?customRoute:String=null):RouteType {
+        switch (TYPE){
+            case CUSTOM:
+                trace("Searching in: "+TYPE);
+                customRoute ??= "null";
+                return cast (customRoute, RouteType);
+            default:
+                trace("Searching in: "+TYPE);
+                return TYPE;
+        }
+    }
+}
+
+enum abstract ImageExtType(String){
+    public var PNG = "png";
+    public var JPG = "jpg";
+    public var ASTC = "astc";
+}
+
+enum abstract SoundExtType(String){
+    public var OGG = "ogg";
+    public var WAV = "wav";
+    public var MP3 = "mp3";
+}
+
+enum abstract FontExtType(String){
+    public var TTF = "ttf";
+    public var OTF = "otf";
+}
+
+enum abstract RouteType(String){
+    public var IMAGE = "assets/images";
+    public var MUSIC = "assets/music";
+    public var DATA = "assets/data";
+    public var CUSTOM = "?";
+}
