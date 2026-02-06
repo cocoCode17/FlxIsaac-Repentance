@@ -1,5 +1,6 @@
 package repentance.play;
 
+import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
@@ -38,18 +39,28 @@ class Room extends FlxState {
         y: 0.
     };
 
-    public function new(id:String = null, roomType:RoomType, playerPositions:PlayerPositions) {
+    public var roomIntro:Void->Void = null;
+    public var hasIntro:Bool = false;
+    public var inIntro:Bool = false;
+    public var introCamera:FlxCamera;
+
+    public function new(id:String = null, roomType:RoomType, playerPositions:PlayerPositions, hasIntro:Bool=false) {
         super();
         id ??= Constants.DEFAULT_ROOM_ID;
         room_id = id;
         this.roomType = roomType;
         this.playerPositions = playerPositions;
+        this.hasIntro = hasIntro;
     }
 
     override function create() {
         super.create();
 
         instance = this;
+
+        introCamera = new FlxCamera();
+        introCamera.bgColor.alpha = 0;
+        FlxG.cameras.add(introCamera, true);
 
         stats = new Stats();
         trace(stats.getStats());
@@ -62,6 +73,11 @@ class Room extends FlxState {
 
         hitboxes = new FlxTypedGroup<FlxSprite>();
         add(hitboxes);
+
+        if (hasIntro){
+            if (roomIntro != null)
+                roomIntro();
+        }
     }
 
     override function update(elapsed:Float) {
@@ -69,5 +85,9 @@ class Room extends FlxState {
         hitboxes.forEachAlive(hitbox->{
            FlxG.collide(player.body, hitbox);
         });
+
+        if (inIntro){
+            player.canUpdate = !inIntro;
+        }
     }
 }

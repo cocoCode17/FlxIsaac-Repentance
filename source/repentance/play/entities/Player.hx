@@ -37,6 +37,8 @@ class Player extends FlxTypedSpriteGroup<RepentanceSprite> {
     public var shooting:Bool = false;
     public var shoot_interval:Float = 0.5;
     public var currentShootDirection:String = "down";
+
+    public var canUpdate:Bool = true;
     
     public function new(x=0.,y=0.,skin:String="isaac") {
         super();
@@ -107,6 +109,8 @@ class Player extends FlxTypedSpriteGroup<RepentanceSprite> {
 
     var toIdleAnim:String = "down";
     override function update(elapsed:Float) {
+        if (!canUpdate)return;
+
         if (player_stats.habilityOnPreUpdate != null)    
             player_stats.habilityOnPreUpdate(elapsed);
         
@@ -183,6 +187,7 @@ class Player extends FlxTypedSpriteGroup<RepentanceSprite> {
                     body.flipX = true;
                     body.animation.play("walk_side", false, true);    
                 }else if (currentShootDirection == "right" && body.velocity.x < 0){
+                    body.flipX = false;
                     body.animation.play("walk_side", false, true);    
                 }else{
                     body.animation.play("walk_side");    

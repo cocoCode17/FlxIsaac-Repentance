@@ -2,11 +2,14 @@ package repentance.play.rooms;
 
 import flixel.FlxG;
 import flixel.FlxSprite;
+import flixel.tweens.FlxEase;
+import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
+import flixel.util.FlxTimer;
 
 class PlumStage extends Room {
     public function new() {
-        super("basement", BLOOD, {x: 300, y: 400});
+        super("basement", BLOOD, {x: 300, y: 400}, true);
         currentLevel = "Baby Plum (Boos Fight)";        
     }
 
@@ -33,8 +36,8 @@ class PlumStage extends Room {
             else 
             hitbox.makeGraphic(25, 549, FlxColor.RED);
 
-            var horizontalYPos = backGround.y+60;
-            var verticalXPos = backGround.x+84;
+            var horizontalYPos = backGround.y+88;
+            var verticalXPos = backGround.x+113;
 
             if (i == 3){
                 horizontalYPos = FlxG.height-horizontalYPos-hitbox.height; 
@@ -48,11 +51,28 @@ class PlumStage extends Room {
             hitbox.setPosition(verticalXPos, 86);
             hitboxes.add(hitbox);
             hitbox.immovable = true;
-            hitbox.visible = false;
+            // hitbox.visible = false;
             if (i == 1){
                 hitbox.x -= hitbox.width/2;
                 hitbox.x -= 11;
             }
+        }
+
+        roomIntro = function(){
+            var black = new FlxSprite().makeGraphic(FlxG.width+10,FlxG.height+10,FlxColor.BLACK);
+            black.screenCenter();
+            black.cameras = [introCamera];
+            add(black);
+
+            new FlxTimer().start(2.6, tmr->{
+                FlxTween.tween(black, {alpha: 0}, 0.4, {ease: FlxEase.backIn,
+                    onComplete: twn->{
+                       black.kill();
+                       remove(black);
+                    }
+                });
+                inIntro = false;
+            });
         }
     }
 
