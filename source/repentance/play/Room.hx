@@ -44,13 +44,14 @@ class Room extends FlxState {
     public var inIntro:Bool = false;
     public var introCamera:FlxCamera;
 
-    public function new(id:String = null, roomType:RoomType, playerPositions:PlayerPositions, hasIntro:Bool=false) {
+    public function new(id:String = null, roomType:RoomType, playerPositions:PlayerPositions, hasIntro:Bool=false, ?roomIntro:Void->Void) {
         super();
         id ??= Constants.DEFAULT_ROOM_ID;
         room_id = id;
         this.roomType = roomType;
         this.playerPositions = playerPositions;
         this.hasIntro = hasIntro;
+        this.roomIntro = roomIntro;
     }
 
     override function create() {
@@ -65,18 +66,19 @@ class Room extends FlxState {
         stats = new Stats();
         trace(stats.getStats());
  
-        hud = new GameHUD(backGround?.x,backGround?.y,this);
-        add(hud);
-
         player = new Player(playerPositions.x, playerPositions.y);
         add(player);
 
         hitboxes = new FlxTypedGroup<FlxSprite>();
         add(hitboxes);
 
+        hud = new GameHUD(backGround?.x,backGround?.y,this);
+        add(hud);
+
         if (hasIntro){
             if (roomIntro != null)
                 roomIntro();
+            inIntro = true;
         }
     }
 
@@ -86,8 +88,6 @@ class Room extends FlxState {
            FlxG.collide(player.body, hitbox);
         });
 
-        if (inIntro){
             player.canUpdate = !inIntro;
-        }
     }
 }

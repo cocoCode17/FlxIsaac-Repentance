@@ -11,6 +11,7 @@ using StringTools;
 typedef PlayerStats = {
     var speed:Int;
     var hearths:Int;
+    var shoot_interval:Float;
     var hability:Bool;
     var habilityOnPreCreate:Void->Void;
     var habilityOnCreate:Void->Void;
@@ -21,11 +22,13 @@ typedef PlayerStats = {
 class Player extends FlxTypedSpriteGroup<RepentanceSprite> {
     public var head:RepentanceSprite;
     public var body:RepentanceSprite;
+    public var specialAnims:RepentanceSprite;
 
     public var skin:String = Constants.DEFAULT_PLAYER_SKIN;
     public var player_stats:PlayerStats = {
         speed: 210,
         hearths: 3,
+        shoot_interval: 0.5,
         hability: false,
         habilityOnCreate: null,
         habilityOnUpdate: null,
@@ -35,7 +38,6 @@ class Player extends FlxTypedSpriteGroup<RepentanceSprite> {
 
     public var shootTimer:FlxTimer;
     public var shooting:Bool = false;
-    public var shoot_interval:Float = 0.5;
     public var currentShootDirection:String = "down";
 
     public var canUpdate:Bool = true;
@@ -83,7 +85,7 @@ class Player extends FlxTypedSpriteGroup<RepentanceSprite> {
 
         adjust();
 
-        shootTimer = new FlxTimer().start(shoot_interval,tmr->{
+        shootTimer = new FlxTimer().start(player_stats.shoot_interval,tmr->{
             if (!shooting)return;
             head.animation.play("head_tear_"+currentShootDirection);
             trace("shoot");

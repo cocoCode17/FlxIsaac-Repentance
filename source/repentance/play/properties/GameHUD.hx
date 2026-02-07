@@ -1,5 +1,6 @@
 package repentance.play.properties;
 
+import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
 import flixel.text.FlxText;
@@ -16,12 +17,15 @@ class GameHUD extends FlxTypedSpriteGroup<FlxSprite>{
     public var bombsTxt:FlxText;
     public var keysTxt:FlxText;
 
+    public var hearths:Array<Hearth> = [];
+    public var currentHearth:Int = -1;
+
     public var room:Room;
 
     var positions = {
-        coin: [27, 116],
-        bomb: [22, 149],
-        key: [27, 185]
+        coin: [27, 136],
+        bomb: [22, 169],
+        key: [27, 205]
     }
 
     public function new(x=0.,y=0., room:Room) {
@@ -73,6 +77,39 @@ class GameHUD extends FlxTypedSpriteGroup<FlxSprite>{
         keysTxt.text = StringTools.lpad(Std.string(room.stats.keys), "0", 2);
         keysTxt.x = 36+(keysIcon.x + 6);
         keysTxt.y = keysIcon.y + 3;
+
+        for (i in 0...room.stats.hearths){
+            var hearth = new Hearth(x+124, y+57);
+            hearth.loadGraphic(AssetPaths.img("hud/ui"), true, 16,16);
+            hearth.animation.add("red_hearth", [0],0,true);
+            hearth.animation.add("red_hearth_half", [1],0,true);
+
+            hearth.animation.add("blank_hearth", [2],0,true);
+
+            hearth.animation.add("white_hearth_half", [3],0,true);
+
+            hearth.animation.add("white_hearth_dot", [4],0,true);
+
+            hearth.animation.add("coin", [5],0,true);
+            hearth.animation.add("coin_blank", [6],0,true);
+            
+            hearth.animation.add("blue_hearth", [7],0,true);
+            hearth.animation.add("blue_hearth_half", [8],0,true);
+            
+            hearth.animation.add("dark_hearth", [9],0,true);
+            hearth.animation.add("dark_hearth_half", [10],0,true);
+
+            hearth.animation.play("red_hearth");
+            hearth.adjustSize(3);
+            hearth.ID = i;
+            // hearth.setPosition(x+144, y+26);
+            hearth.x += (hearth.width-9)*i;
+            add(hearth);
+            hearths.push(hearth);
+        }
+        if (hearths.length>0)
+        currentHearth = hearths.length;
+        trace(currentHearth);
     }
 
     override function update(elapsed:Float) {
@@ -81,5 +118,51 @@ class GameHUD extends FlxTypedSpriteGroup<FlxSprite>{
         coinsTxt.text = StringTools.lpad(Std.string(room.stats.coins), "0", 2);
         bombsTxt.text = StringTools.lpad(Std.string(room.stats.bombs), "0", 2);
         keysTxt.text = StringTools.lpad(Std.string(room.stats.keys), "0", 2);
+
+        if (FlxG.keys.justPressed.P){
+            updateHearth(true);
+        }
+    }
+
+    /**
+        * This update the status of the lastHearth
+    **/
+    public function updateHearth(hurt:Bool=true) {
+        var lastHearth = hearths[currentHearth-1];
+        if (hurt){
+            if (lastHearth != null){
+                if (!lastHearth.half){
+                    lastHearth.half = true;
+                }else{
+                    lastHearth.animation.play("blank_hearth",true);
+                    currentHearth-=1;
+                }
+            }
+        }else{
+            if (lastHearth != null){
+                if (!lastHearth.half){
+                    lastHearth.half = true;
+                }else{
+                    lastHearth.animation.play("blank_hearth",true);
+                    currentHearth+=1;
+                }
+            }
+        }
+    }
+}
+
+class Hearth extends RepentanceSprite {
+    public var half(default, set):Bool = false;
+    private function set_half(v){
+        if (v){
+        animation.play("red_hearth_half",true);
+        }else{
+        animation.play("red_hearth",true);
+        }
+        half = v;
+        return v;
+    }
+    public function new(X=0.,Y=0.) {
+        super(X,Y);
     }
 }
