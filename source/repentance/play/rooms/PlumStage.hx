@@ -35,8 +35,9 @@ class PlumStage extends Room {
             bplum.x -= 204;
             bplum.cameras = [introCamera];
 
+            var bplumFloorScale = Constants.GAME_SCALE_FACTOR+1.35;
             bplumFloor.loadGraphic(AssetPaths.img("boss_intro/floors/basement"));
-            bplumFloor.adjustSize(Constants.GAME_SCALE_FACTOR+1.35);
+            bplumFloor.adjustSize(bplumFloorScale);
             bplumFloor.cameras = [introCamera];
             bplumFloor.x = bplum.x - ((bplumFloor.width-bplum.width)/2);
             bplumFloor.y = bplum.y + (bplum.height-(bplumFloor.height));
@@ -45,8 +46,14 @@ class PlumStage extends Room {
             add(bplumFloor);
             add(bplum);
 
+            bplumFloor.dyn.update = elapsed->{
+                bplumFloor.x = bplum.x - ((bplumFloor.width-bplum.width)/2)+10;
+                bplumFloor.y = bplum.y + (bplum.height-(bplumFloor.height))+32;
+            }
+
+            var isaacScale = 2.5;
             isaac.loadGraphic(AssetPaths.img("portraits/isaac"));
-            isaac.adjustSize(2.5);
+            isaac.adjustSize(isaacScale);
             isaac.setPosition(20,(FlxG.height*0.5)-30);
             isaac.x+=125;
             isaac.y+=160;
@@ -55,7 +62,9 @@ class PlumStage extends Room {
             var random_positions = [-4,4];
             var randomID:Int=0;
             // for isaac cry!
-            // isaac.dyn.update = elapsed ->{
+            isaac.dyn.update = elapsed ->{
+                isaacPortraitBasePosition = isaac.x;
+            }
             var isaacTimer = new FlxTimer().start(0.065, tmr->{
                 if (isaac == null)return;
                 // isaac.x = isaacPortraitBasePosition+FlxG.random.int(-20,20);
@@ -72,6 +81,10 @@ class PlumStage extends Room {
             isaacFloor.cameras = [introCamera];
             add(isaacFloor);
             add(isaac);
+            isaacFloor.dyn.update = elapsed->{
+                isaacFloor.x = isaac.x - ((isaacFloor.width-isaac.width)/2)+10;
+                isaacFloor.y = isaac.y + (isaac.height-(isaacFloor.height))+22;
+            }
 
             isaacTag.loadGraphic(AssetPaths.img("tags/isaac"));
             isaacTag.adjustSize(Constants.GAME_SCALE_FACTOR-0.4);
@@ -98,7 +111,7 @@ class PlumStage extends Room {
             var bplumTag = new RepentanceSprite(0,0);
             var vsTag = new RepentanceSprite(0,0);
 
-            var isaacPortraitFinalPoisitions = {
+            var isaacPortraitFinalPositions = {
                 x: isaac.x,
                 y: isaac.y
             }
@@ -127,17 +140,61 @@ class PlumStage extends Room {
                 y: vsTag.y
             }
 
-            new FlxTimer().start(2.6, tmr->{
+            //repositioning for start anim
+
+            // ISAAC
+            isaac.x = -isaac.width;
+            isaac.scale.y =Constants.GAME_SCALE_FACTOR* 0.5;
+            FlxTween.tween(isaac, {x: isaacPortraitFinalPositions.x, y: isaacPortraitFinalPositions.y, "scale.y":Constants.GAME_SCALE_FACTOR}, 0.35, {ease: FlxEase.linear});
+            
+            FlxTween.tween(isaac, {x: isaacPortraitFinalPositions.x, y: isaacPortraitFinalPositions.y, "scale.y":Constants.GAME_SCALE_FACTOR}, 0.35, {ease: FlxEase.linear, 
+                onComplete: twn->{
+                    var bunceTwn = FlxTween.tween(isaac, {"scale.y":isaacScale+0.25}, 0.2, {ease: FlxEase.linear, type: PINGPONG});
+                    new FlxTimer().start(0.5, tmr->{
+                        bunceTwn.cancel();
+                        FlxTween.tween(isaac, {"scale.y":isaacScale}, 0.1, {ease: FlxEase.linear});
+                        FlxTween.tween(isaac, {x: isaacPortraitFinalPositions.x+40}, 2.2, {ease: FlxEase.linear});
+                        FlxTween.tween(isaac, {"scale.y":isaacScale+0.5,"scale.x":isaacScale-0.7}, 0.1, {ease: FlxEase.linear, startDelay: 2});
+                        FlxTween.tween(isaac, {"scale.y":isaacScale-0.9,"scale.x":isaacScale+0.5}, 0.15, {ease: FlxEase.linear, startDelay: 2.1});
+                        FlxTween.tween(bplumFloor, {"scale.y":bplumFloorScale+0.5,"scale.x":isaacScale-0.7}, 0.1, {ease: FlxEase.linear, startDelay: 2});
+                        FlxTween.tween(bplumFloor, {"scale.y":bplumFloorScale-0.9,"scale.x":bplumFloorScale+0.5}, 0.15, {ease: FlxEase.linear, startDelay: 2.1});
+                        FlxTween.tween(isaac, {alpha: 0,x:-20}, 0.2, {ease: FlxEase.linear, startDelay: 2.2});
+                        FlxTween.tween(bplumFloor, {alpha: 0}, 0.2, {ease: FlxEase.linear, startDelay: 2.2});
+                    });
+                }
+            });
+            // BABY PLUMM!
+            bplum.x = FlxG.width+bplum.width;
+            bplum.scale.y = Constants.GAME_SCALE_FACTOR* 0.5;
+            FlxTween.tween(bplum, {x: babyPlumPortraitFinalPositions.x, y: babyPlumPortraitFinalPositions.y, "scale.y":Constants.GAME_SCALE_FACTOR}, 0.35, {ease: FlxEase.linear, 
+                onComplete: twn->{
+                    var bunceTwn = FlxTween.tween(bplum, {"scale.y":Constants.GAME_SCALE_FACTOR+0.25}, 0.2, {ease: FlxEase.linear, type: PINGPONG});
+                    new FlxTimer().start(0.5, tmr->{
+                        bunceTwn.cancel();
+                        FlxTween.tween(bplum, {"scale.y":Constants.GAME_SCALE_FACTOR}, 0.1, {ease: FlxEase.linear});
+                        FlxTween.tween(bplum, {x: babyPlumPortraitFinalPositions.x-100}, 2.2, {ease: FlxEase.linear});
+                        FlxTween.tween(bplum, {"scale.y":Constants.GAME_SCALE_FACTOR+0.5,"scale.x":Constants.GAME_SCALE_FACTOR-0.7}, 0.1, {ease: FlxEase.linear, startDelay: 2});
+                        FlxTween.tween(bplum, {"scale.y":Constants.GAME_SCALE_FACTOR-0.9,"scale.x":Constants.GAME_SCALE_FACTOR+0.5}, 0.15, {ease: FlxEase.linear, startDelay: 2.1});
+                        FlxTween.tween(bplumFloor, {"scale.y":bplumFloorScale+0.5,"scale.x":bplumFloorScale-0.7}, 0.1, {ease: FlxEase.linear, startDelay: 2});
+                        FlxTween.tween(bplumFloor, {"scale.y":bplumFloorScale-0.9,"scale.x":bplumFloorScale+0.5}, 0.15, {ease: FlxEase.linear, startDelay: 2.1});
+                        FlxTween.tween(bplum, {alpha: 0,x:FlxG.width-20}, 0.2, {ease: FlxEase.linear, startDelay: 2.2});
+                        FlxTween.tween(bplumFloor, {alpha: 0}, 0.2, {ease: FlxEase.linear, startDelay: 2.2});
+                    });
+                }
+            });
+
+            new FlxTimer().start(3, tmr->{
                 FlxTween.tween(black, {alpha: 0}, 0.4, {ease: FlxEase.backIn,
                     onComplete: twn->{
-                       black.kill();
-                       remove(black);
-                       isaacTimer.cancel();
-                       isaacTimer.destroy();
+                        black.kill();
+                        remove(black);
+                        isaacTimer.cancel();
+                        isaacTimer.destroy();
+
+                        inIntro = false;
+                        player.canUpdate = true;
                     }
                 });
-                inIntro = false;
-                player.canUpdate = true;
             });
         });
 
