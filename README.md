@@ -3,8 +3,8 @@ A port of  The Binding of Isaac: Repentance on HaxeFlixel!, for now the port inc
 
 ## Owners
 
-- Coco.Code! [Programming]
 - AssmanBruh! [Art, Code, Designer]
+- Coco.Code! (My MultiAccount) [Programming]
 
 //head 28x26
 //body 18x15, primera fila walk horziontal y segunda walk vertical
